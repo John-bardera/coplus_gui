@@ -37,6 +37,7 @@ def weather():
         week_weather[count]=data
     #print(week_weather)
 
+
 def train_jr_get():
     source_req = requests.get("http://www.jr-odekake.net/eki/timetable.php?id=0610611")
     soup = BeautifulSoup(source_req.content, "html.parser")
@@ -61,6 +62,7 @@ def train_jr_get():
     if dir == "三ノ宮・大阪方面":
         req = requests.get("http://time.jr-odekake.net/cgi-bin/mydia.cgi?MODE=11&FUNC=0&EKI=魚住&SENK=ＪＲ神戸線&DDIV=&CDAY=&DITD=2856012070100%2c2856012070110%2c2856012070400%2c2856012070410&COMPANY_CODE=4", params=params)
     """
+    up_down_diagram = []
     for i in range(2):
         req = requests.get(url[i])
         soup = BeautifulSoup(req.content, "html.parser")
@@ -81,9 +83,10 @@ def train_jr_get():
                         continue
                     if temp_list[0][0] == "快":
                         temp_list[0] = temp_list[0][2:]
-                    diagram.append([int(hour)*60+int(temp_list[2]),temp_list[0]])
+                    diagram.append([int(hour)*60+int(temp_list[2]), temp_list[0]])
                     temp_list = []
-    return diagram
+        up_down_diagram.append(sorted(diagram, key=lambda diagram: diagram[0]))
+    return up_down_diagram
 
 
 def train_sanyou_get():
@@ -102,6 +105,7 @@ def train_sanyou_get():
         which_tables = ["334-23_D1_DW2", "334-23_D2_DW2"]
 
     to_change_dir = {"高": "高速神戸", "磨": "山陽須磨", "開": "新開地", "さ": "神戸三宮(阪急)", "サ": "神戸三宮(阪急)", "東": "東須磨", "砂": "高砂", "姫": "山陽姫路", "飾":"飾磨", "二": "東二見"}
+    up_down_diagram = []
     for i in range(2):
         diagram = []
         req = requests.get("http://timetable.ekitan.com/train/TimeStation/{}.shtml".format(which_tables[i]))
@@ -119,8 +123,9 @@ def train_sanyou_get():
                                     to_split[2] = to_split[2][1]
                             if to_split[1][3] == "]":
                                 to_split[1] = to_split[1].split("]")[1]
-                            diagram.append([int(hour)*60 + int(to_split[2]),to_split[1]])
-    return diagram
+                            diagram.append([int(hour)*60 + int(to_split[2]), to_split[1]])
+        up_down_diagram.append(sorted(diagram, key=lambda diagram: diagram[0]))
+    return up_down_diagram
 
 
 #print(train_sanyou_get()[0])
